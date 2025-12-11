@@ -1,4 +1,12 @@
-# ⚙️ Subota: Multifunctional Local Assistant and Automation Platform
+# ⚙️ Subota: Multifunctional Local Assistant and Automation Platform [Alpha Version]
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=flat-square&logo=python)
+![Asyncio](https://img.shields.io/badge/Core-Asyncio-4D88FE?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Event%20Bus-Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Alpha%20%2F%20In%20Dev-orange?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-40%2B%20Pytest-green?style=flat-square)
+![License](https://img.shields.io/github/license/Karlsonte/Subota-Multifunctional-Assistant?style=flat-square)
 
 ### 🚀 Introduction and Motivation
 
