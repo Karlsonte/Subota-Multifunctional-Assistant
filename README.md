@@ -1,2 +1,39 @@
-# Subota-Multifunctional-Assistant
-Local Assistant and Automation Platform with Event-Driven Architecture (Subota 3.0). Python/FastAPI/asyncio.
+# ⚙️ Subota: Multifunctional Local Assistant and Automation Platform
+
+### 🚀 Introduction and Motivation
+
+The Subota project is inspired by the idea of ​​creating a **maximally autonomous, locally controlled assistant** that serves not only as a voice interface but also as a centralized platform for automation and security.
+
+**The idea is based on the concept of "Servitor"**: a highly specialized, reliable and fully controllable system capable of performing a wide range of tasks - from simple information ("What time is it?") to multi-level monitoring and home security (Computer Vision, Smart Home, Scripts).
+
+### 🎯 Key Goal of the Project
+
+#### "Jarvis... Sometimes you gotta run, before you can walk" - Tony Stark (Iron Man 2008)
+
+Create a **private, extensible, and fault-tolerant ecosystem** where all data processing and management logic is executed **strictly locally**.
+
+The main emphasis is on:
+
+1.  **Data Sovereignty:** The user retains full control over data and functionality.
+2.  **Modular Architecture:** Ensuring easy addition of new features and system resilience to failures.
+3.  **Multi-Channel Interaction:** Support for voice control, Telegram, Web/REST API.
+
+## 💾 2. Исторический Контекст и Итерации (Subota 1.0 & 2.0)
+
+Проект Subota прошел через две итерации прототипов, которые стали критически важной базой для проектирования текущей асинхронной платформы (3.0). Эти прототипы продемонстрировали как потенциал идеи, так и **архитектурные ограничения** синхронного, монолитного подхода.
+
+### Subota 1.0 (Jarvis_1.0) — NLP и Системная Интеграция
+
+**Технологии:** Python (Synchronous), Vosk, Scikit-learn (Logistic Regression/Count Vectorizer), pyttsx3, psutil.
+
+**Ключевые Достижения и Продемонстрированные Навыки:**
+
+* **Custom NLP/NLU (Натуральный Язык):** Реализован собственный скрипт обработки запросов на основе **Logistic Regression** и **Count Vectorizer** для классификации интентов по ключевым фразам (`data_set`).
+* **Голосовые Вычисления (Критический Модуль):** Разработан модуль `numbers_text_to_int` (NL to Math), который позволял выполнять сложные математические расчеты, распознанные **Vosk** (в виде текста), включая обработку **дробных чисел** и **приоритета операторов** (например, $2+3\cdot4$).
+    * *Это продемонстрировало способность решать сложные технические задачи, выходящие за рамки стандартных библиотек.*
+* **Низкоуровневая Интеграция с ОС:** Реализован контроль громкости (`pycaw`), мониторинг системы (`psutil`) и выполнение команд ОС (`subprocess`), что обеспечило базовый функционал "умного" управления ПК.
+* **Обработка Речи:** Использовался **Vosk** для распознавания речи и **pyttsx3/SileroTTS** (в более поздних версиях) для синтеза.
+
+#### 💡 **Главный Урок 1.0:**
+
+Синхронная архитектура и зависимость от классификатора на основе фраз **не позволяли системе легко масштабироваться** (добавлять новые функции) и приводили к блокировкам при ожидании I/O операций (например, при обращении к внешним API или запуске длительных процессов). Это стало прямым триггером для перехода к асинхронному и модульному дизайну 3.0.
