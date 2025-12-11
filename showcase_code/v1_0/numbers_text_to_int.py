@@ -1,5 +1,4 @@
 from difflib import get_close_matches as gcm
-from Loging import log_data
 import math
 
 
@@ -355,7 +354,6 @@ def reading_start(string_input):
     определяет десятичные знаки, оценивает выражение и возвращает округленный 
     результат или исключение, если оно встречается.
     '''
-    # print(F"{string_input = }")
     expressions, operators = split_by_operators(string_input, OPERATORS)
     if expressions:
         numbers = process_expressions(expressions, NUMS_RAW, DECIMALS)
@@ -370,7 +368,6 @@ def reading_start(string_input):
             result = evaluate_expression(numbers, operators)
             return round(result, decimal_places)
         except Exception as e:
-            log_data(F'numbers_text_to_int.reading_start - {e}', "Erorrs")
             return (F"калькулятор сломался")
     else:
         return
