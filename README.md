@@ -122,7 +122,8 @@ Currently, the **DiscoveryManager** module is being actively developed, which wi
     * **Active Mode (Search):** Regular search for devices (`M-SEARCH`) linked to a specific network interface.
 * **Integration:** The discovered device is retrieved, its XML description (for UPnP) is parsed to obtain the name/model, and then the information is published to the **Redis Event Bus** (`device_discovered`) for further processing and storage in **PostgreSQL**.
 
-#### 🌐 Asynchronous Device Discovery: DiscoveryManager
+##### 🌐 Asynchronous Device Discovery: DiscoveryManager
 [**DiscoveryManager**](/showcase_code/v3_0/discovery_manager_snippet.py)
 
-##### [Raod map](./ROADMAP.md)
+#### [Raod map](./ROADMAP.md)
+#### [Architecture overview](./architecture_overview.md)
