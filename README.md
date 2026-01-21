@@ -119,19 +119,39 @@ The introduction of CV and LLM dramatically increased the requirements for **par
 ### 🖼️ **Code Demo**
 [**RBAC Manager**](./showcase_code/v3_0/rbac_manager.py)
 
-
-#### 🔍 Current Work: Automating Device Discovery (DiscoveryManager)
-
-Currently, the **DiscoveryManager** module is being actively developed, which will transform Subota 3.0 from a "manual" system into a **self-configuring platform**.
-
-* **Purpose:** Automatic search, classification and registration of compatible devices in the local network (IoT hubs, smart TVs, printers, etc.).
-   * **Implementation:** An advanced asynchronous network stack is used to work with the **SSDP (UPnP)** and **mDNS (ZeroConf)** protocols.
-    * **Passive Mode (Listener):** Continuously listens asynchronously for broadcast announcements (`NOTIFY` in SSDP) to instantly react to the appearance of new devices.
-    * **Active Mode (Search):** Regular search for devices (`M-SEARCH`) linked to a specific network interface.
-* **Integration:** The discovered device is retrieved, its XML description (for UPnP) is parsed to obtain the name/model, and then the information is published to the **Redis Event Bus** (`device_discovered`) for further processing and storage in **PostgreSQL**.
-
 ##### 🌐 Asynchronous Device Discovery: DiscoveryManager
 [**DiscoveryManager**](/showcase_code/v3_0/discovery_manager_snippet.py)
+
+#### 🔍 Current Work: 🛡️ Stage 3.5 — Security Hardening ⚡
+The current development phase is fundamentally strengthening the system according to Zero Trust principles.
+
+With the basic functionality complete, it's time to transform Subota from a "smart assistant" into a "secure fortress." This phase is dedicated to systematically eliminating vulnerabilities identified during the security audit and implementing multi-layered protection.
+
+##### 🎯 Key goals of this phase:
+- Access control: Every device and user must prove their right to perform every action.
+- Data integrity: No event in the system can be tampered with or intercepted.
+- Risk isolation: A hack of one component should not compromise the entire system.
+- Fault tolerance: The system must fail safely and protect data in the event of any failure.
+
+##### 🔐 Key Focus Areas:
+###### 🔴 Critical Priority — Security Foundation:
+- Trusted Event Bus: Implementing HMAC signatures for all messages in Redis. Any event without a valid digital signature is ignored by the kernel.
+- Secure Network Perimeter: Configuring Zero Trust on MikroTik — new devices on the network are automatically quarantined until manually approved.
+- Secure Data Gateway: MQTT broker with TLS, strict ACLs, and a validator bridge that verifies and signs data from IoT devices before transmitting it to the kernel.
+
+###### 🟠 High Priority — Interface Security:
+- Depth-based Authentication: Implementing two-factor authentication (TOTP/Google Authenticator) for critical commands in Telegram and voice control.
+- NLP/LLM injection protection: Sandboxing for external data processing, strict system prompts, and mandatory "man-in-the-loop" confirmation for commands generated from parsing.
+- Hardware security: Transition from vulnerable HID emulation to a secure serial protocol with nonce and handshake for all DIY devices (Arduino, ESP).
+
+###### 🟡 Medium priority — Intelligent protection:
+- Smart presence logic: Multi-Sensor Fusion — the system determines whether the owner is home based on a combination of indicators (Wi-Fi, Bluetooth, motion sensors), rather than a single indicator.
+- Anti-EW filter: Protects geolocation scenarios from GPS spoofing and electronic jamming.
+- Fail-safe states: Clearly defined system behavior scenarios in the event of loss of connection to sensors, the internet, or a critical server battery drain.
+
+###### 🟢 Low Priority — Technical Debt:
+- Docker Hardening: Isolate containers on separate networks, run as unprivileged users, limit resources.
+- Secret Management Refactoring: Move the master key from configuration files to hardware storage (SD card with a physical lock switch).
 
 #### [Raod map](./ROADMAP.md)
 #### [Architecture overview](./architecture_overview.md)
