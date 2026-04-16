@@ -1,5 +1,5 @@
 # ⚙️ S.U.B.O.T.A. - System Unit of Binary Operations & Technical Assistance
-Multifunctional Local Assistant and Automation Platform [Alpha Version]
+## Multifunctional Local Assistant and Automation Platform [Alpha Version]
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=flat-square&logo=python)
 ![Asyncio](https://img.shields.io/badge/Core-Asyncio-4D88FE?style=flat-square&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
