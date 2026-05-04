@@ -365,3 +365,68 @@
      - Infra Setup: На основе карты создаются все очереди и ивенты (включая динамические для мостов).
      - API Factory: Для каждого модуля создается свой экземпляр ModuleAPI.
      - Module Loading: Модули загружаются, получают свои «урезанные» интерфейсы и встают в режим ожидания сигналов (ready.wait()).
+
+- 04.05.26:
+  **KeyManagerSystem**:
+     1. Криптографический фундамент
+        - Асимметричная проверка целостности: Внедрена проверка system_map.yaml с использованием Ed25519. Система блокирует запуск при любом несанкционированном изменении карты.  
+        - Отказ от Dev-Mode: Полностью исключена возможность обхода проверок подписей даже в режиме разработки.  
+     2. Механизм деривации ключей (KDF)
+        - Поддержка Sub-Identities: В метод get_key добавлен функционал генерации ключей для динамических сущностей. Формула: `HMAC(ServiceKey, sub\_identity)`.  
+        - Capability-based Access: Введена система разрешений (delegate, transit). Ключи выдаются только под конкретные роли, описанные в system_map.  
+     3. Интеграция с ScriptRunner
+        - Делегирование доверия: ScriptRunner (как и другие nested-модули) получил право запрашивать ключи для скриптов/"детей".  
+        - Автоматизация Security Life-cycle: Скрипты получают `_security_key` прозрачно при инициализации через `ChildAPI`, что избавляет инженера от написания бойлерплейта безопасности в каждом файле.  
+     4. Health Checks и Integrity
+        - HMAC-мониторинг: Реализована проверка конфигурации в рантайме. 
+
+  Zero Trust:
+   - Не доверяем именам модулей, доверяем только их криптографическому происхождению.  
+   - Separation of Concerns: KMS отвечает за математику и правила, ScriptRunner — за оркестрацию, а скрипты — за логику. Границы ответственности не пересекаются. 
+
+ **SecurityCenter**: Класс для анализа инцидентов безопасности. Он наследует классы `BaseClass` и `CryptoSignerMixin` и включает методы для инициализации объекта, загрузки и выгрузки модуля, составления отчетов об инцидентах, обработки критических нарушений, анализа инцидентов, применения блокировок и выполнения периодической очистки. Класс использует очереди и события для управления обменом данными между различными компонентами системы.
+ 
+  **`system_map.yaml`**: добавлено новое поле `capabilities:List` - для указания что можно а что нет модулю и какие ключи модуль может получать. 
+  
+  **ScriptRunner**: новое правило написание скриптов:
+   - Было:
+     ```python
+     BASE_NAME = 'time_check_script'
+     GROUP_NAME = f'group_{BASE_NAME}'
+     CONSUMER_NAME = f'consumer_{BASE_NAME}_1'
+     USER_ID = 'script'
+     SOURCE = 'script_runner'
+     class TimeCheckScript(SubotaService):
+        def __init__(self):
+           super().__init__(service_name=BASE_NAME, key_id=BASE_NAME,
+                        source=SOURCE, user_id=USER_ID, tier=0,
+                        config_name=None,deps=['event_bus'],
+                        methods={'kms':['get_key', 'register_identity', 'resolve_identity','unregister_identity'],
+                                 'event_bus':['publish','ensure_group_exists','subscribe_to_group'],
+                                 'task_watcher':['start_watching','stop_watching'],
+                                 'security_center':['report_incident'],
+                                 'infra':['dry_run',"emergency_queue"]})
+     ```
+     ---
+   - Стало:
+     ```python
+     BASE_NAME = 'time_check_script'
+     GROUP_NAME = f'group_{BASE_NAME}'
+     CONSUMER_NAME = f'consumer_{BASE_NAME}_1'
+     USER_ID = 'script'
+     SOURCE = 'script_runner'
+     SERVICE_NAME = 'script_runner'
+     class TimeCheckScript(SubotaService):
+        def __init__(self):
+           super().__init__(service_name=SERVICE_NAME, key_id=BASE_NAME,
+                        source=SOURCE, user_id=USER_ID, tier=0, sub_identity=BASE_NAME,
+                        config_name=None,deps=['event_bus'],
+                        methods={'kms':['get_key'],
+                                 'event_bus':['publish','ensure_group_exists','subscribe_to_group'],
+                                 'task_watcher':['start_watching','stop_watching'],
+                                 'security_center':['report_incident'],
+                                 'infra':['dry_run',"emergency_queue"]})
+     ```
+     ВАЖНО: удалены методы `'register_identity', 'resolve_identity','unregister_identity'` теперь регистрация не нужна, нужно чтобы у nested-модуля было разрешение регистрировать своих "подопечных".
+
+
