@@ -1,5 +1,88 @@
 # Что сделано/реализовано:
 
+- 13.05.26:
+  #### **IsolatedRunner**:
+   Отдельный "запускатор" тяжелых модулей и моделей (NLP, TTS, Voice recognizer). Цель: для повышения стабильности системы путем выноса таких модулей в отдельные процессы. 
+   - в ядре `IsolatedRunner` остается под именет того модуля который он запускает, таким образом те модули которые ссылались в `system_map.yaml` продолжают ссылатся на него и не должно вызывать проблем.
+   - изменилась запись изолированых модулей в `system_map.yaml`. пример:
+   Было:
+   ```python
+   intent_processor:
+    class_path: 'core.intent_processor.IntentProcessor'
+    tier: 4
+    capabilities: ['transit']
+    deps:
+      - "event_bus"
+      - "nlp_processor"
+      - "simple_intent_mapper"
+      - "context_manager"
+    methods:
+      kms:
+        - "get_key"
+      security_center:
+        - 'report_incident'
+      infra:
+        core_stop_event:
+          - "is_set"
+        emergency_queue:
+          - 'put'
+        scrip_docs:
+          - 'get_docs'
+      simple_intent_mapper:
+        - 'process_command'
+      nlp_processor:
+        - 'process_text'
+      context_manager:
+        - 'get_context'
+        - 'save_context'
+      event_bus:
+        - 'publish'
+        - 'ensure_group_exists'
+        - 'subscribe_to_group'
+      task_watcher:
+        - "start_watching"
+        - "stop_watching"
+   ```
+   Стало:
+   ```python
+   intent_processor:
+    class_path: 'models.nlp.intent_processor.IntentProcessor'
+    tier: 4
+    isolated: True
+    capabilities: ['transit']
+    events:
+      incoming_event:
+        - 'user_command_input'
+      outgoing_group_names:
+        - 'last_intent_group'
+    deps:
+      - "context_manager"
+    methods:
+      context_manager:
+        - 'get_context'
+        - 'save_context'
+   ```
+   так же из карты убраны модули от который на прямую зависит `intent_processor`, а именно `simple_intent_mapper` и `nlp_processor`. теперь они на прямую импортируются в `intent_processor`
+   - карта `IsolatedRunner` проверяется и валидируется в `KMS` и только после этого передается в ядро.
+   - `IsolatedRunner` сделан максимально универсальным и работает через прописаный pipeline, пример:
+   ```python
+   {'action': 'call',
+     "method": "get_context",
+     'source': 'self.interfaces.context_manager',
+     'kwargs':{'user_id':'payload.source_user_id', 'key':'last_target_id'},
+     'save_to': 'self.context'},
+     
+    {'action':'call_isolated',
+    'method':'process_intent',
+    'source': 'self._isolated_process',
+    'kwargs':{'raw_intent':'payload.text', 'context': 'self.context', 'script_docs': 'self.interfaces.infra.scrip_docs'},
+    'save_to': 'self.intent'},
+    ```
+   "прямые" вызовы из модуля прописываюются как `call`, если уже идет вызов изолированого модуля то он пишется как `call_isolated`
+   - так же подключена периодическа отсылка метрик "изолированого" в `Redis`. **MetricsCollector** пока что из просто логирует.
+  #### **ResourceGovernor**:
+   - в изначальном смысле отменен.
+
 - 07.05.26:
   #### Отмена идеи "мини ОС" в пользу изоляции отдельных процессов
   Дополнение: Введен ScriptRegistry для асинхронного управления документацией скриптов
